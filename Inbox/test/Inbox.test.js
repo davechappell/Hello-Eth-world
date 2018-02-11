@@ -18,11 +18,22 @@ beforeEach(async () => {
   inbox = await new web3.eth.Contract(JSON.parse(interface))
     .deploy({data: bytecode, arguments: ['Say hello to your mother!']})
     .send({ from: accounts[0], gas: '1000000'});
+
+    inbox.setProvider(provider);
 });
 
 describe('Inbox', () => {
   it('deploys a contract', () => {
     assert.ok(inbox.options.address);
+  });
+  it('has a default message', async () => {
+    const message = await inbox.methods.message().call();
+    assert.equal(message, 'Say hello to your mother!');
+  });
+  it('can change the message', async () => {
+    await inbox.methods.setMessage('Now Im gonna talk to a goat').send({ from: accounts[0] });
+    const message = await inbox.methods.message().call();
+    assert.equal(message, 'Now Im gonna talk to a goat');
   });
 });
 
